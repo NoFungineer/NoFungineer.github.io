@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WoW Classic Character Selector</title>
+    <style>
+        #default-info {
+            display: block;
+        }
+        #selected-info {
+            display: none;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const factions = {
+                "Alliance": ["Human", "Dwarf", "Night Elf", "Gnome"],
+                "Horde": ["Orc", "Undead", "Tauren", "Troll"]
+            };
+
+            const races = {
+                "Human": ["Warrior", "Paladin", "Rogue", "Priest", "Mage", "Warlock"],
+                "Dwarf": ["Warrior", "Paladin", "Hunter", "Rogue", "Priest"],
+                "Night Elf": ["Warrior", "Hunter", "Rogue", "Priest", "Druid"],
+                "Gnome": ["Warrior", "Rogue", "Mage", "Warlock"],
+                "Orc": ["Warrior", "Hunter", "Rogue", "Shaman", "Warlock"],
+                "Undead": ["Warrior", "Rogue", "Priest", "Mage", "Warlock"],
+                "Tauren": ["Warrior", "Hunter", "Shaman", "Druid"],
+                "Troll": ["Warrior", "Hunter", "Rogue", "Priest", "Shaman", "Mage"]
+            };
+
+            const deathMessages = {
+                "Human Warrior": "Human Warrior most frequently died at Level 13 in Elwynn Forest. The Model predicts that Human Warrior's will die at Level 6 (7.50%) in Redridge Mountains (59.70%)",
+                "Human Paladin": "Human Paladin most frequently died at Level 6 in Elwynn Forest. The Model predicts that Human Paladin's will die at Level 6 (8.00%) in Redridge Mountains (63.50%)",
+                "Human Rogue": "Human Rogue most frequently died at Level 8 in Elwynn Forest. The Model predicts that Human Rogue's will die at Level 6 (6.80%) in Redridge Mountains (59.00%)",
+                "Human Priest": "Human Priest most frequently died at Level 11 in Elwynn Forest. The Model predicts that Human Priest's will die at Level 6 (10.50%) in Loch Modan (65.60%)",
+                "Human Mage": "Human Mage most frequently died at Level 11 in Westfall. The Model predicts that Human Mage's will die at Level 6 (8.10%) in Redridge Mountains (62.20%)",
+                "Human Warlock": "Human Warlock most frequently died at Level 6 in Elwynn Forest. The Model predicts that Human Warlock's will die at Level 6 (8.50%) in Loch Modan (71.70%)",
+                "Orc Warrior": "Orc Warrior most frequently died at Level 10 in Durotar. The Model predicts that Orc Warrior's will die at Level 6 (9.20%) in Searing Gorge (69.70%)",
+                "Orc Hunter": "Orc Hunter most frequently died at Level 6 in Durotar. The Model predicts that Orc Hunter's will die at Level 6 (6.60%) in Dun Morogh (76.80%)",
+                "Orc Rogue": "Orc Rogue most frequently died at Level 10 in Durotar. The Model predicts that Orc Rogue's will die at Level 6 (9.90%) in Hillsbrad Foothills (75.10%)",
+                "Orc Shaman": "Orc Shaman most frequently died at Level 10 in Durotar. The Model predicts that Orc Shaman's will die at Level 6 (13.50%) in Searing Gorge (67.70%)",
+                "Orc Warlock": "Orc Warlock most frequently died at Level 10 in Durotar. The Model predicts that Orc Warlock's will die at Level 6 (20.30%) in Western Plaguelands (79.40%)",
+                "Dwarf Warrior": "Dwarf Warrior most frequently died at Level 6 in Dun Morogh. The Model predicts that Dwarf Warrior's will die at Level 6 (7.30%) in Loch Modan (64.60%)",
+                "Dwarf Paladin": "Dwarf Paladin most frequently died at Level 6 in Dun Morogh. The Model predicts that Dwarf Paladin's will die at Level 6 (8.10%) in Duskwood (59.50%)",
+                "Dwarf Hunter": "Dwarf Hunter most frequently died at Level 6 in Dun Morogh. The Model predicts that Dwarf Hunter's will die at Level 6 (9.60%) in Duskwood (65.50%)",
+                "Dwarf Rogue": "Dwarf Rogue most frequently died at Level 14 in Dun Morogh. The Model predicts that Dwarf Rogue's will die at Level 6 (6.80%) in Redridge Mountains (54.60%)",
+                "Dwarf Priest": "Dwarf Priest most frequently died at Level 9 in Dun Morogh. The Model predicts that Dwarf Priest's will die at Level 6 (8.90%) in Duskwood (55.90%)",
+                "Night Elf Warrior": "Night Elf Warrior most frequently died at Level 12 in Teldrassil. The Model predicts that Night Elf Warrior's will die at Level 6 (10.30%) in Teldrassil (70.40%)",
+                "Night Elf Hunter": "Night Elf Hunter most frequently died at Level 8 in Teldrassil. The Model predicts that Night Elf Hunter's will die at Level 6 (11.20%) in Teldrassil (73.20%)",
+                "Night Elf Rogue": "Night Elf Rogue most frequently died at Level 10 in Teldrassil. The Model predicts that Night Elf Rogue's will die at Level 6 (11.90%) in Teldrassil (69.40%)",
+                "Night Elf Priest": "Night Elf Priest most frequently died at Level 8 in Teldrassil. The Model predicts that Night Elf Priest's will die at Level 6 (11.30%) in Teldrassil (73.50%)",
+                "Night Elf Druid": "Night Elf Druid most frequently died at Level 8 in Darkshore. The Model predicts that Night Elf Druid's will die at Level 6 (11.10%) in Teldrassil (69.80%)",
+                "Undead Warrior": "Undead Warrior most frequently died at Level 11 in Tirisfal Glades. The Model predicts that Undead Warrior's will die at Level 6 (11.50%) in Hillsbrad Foothills (68.30%)",
+                "Undead Rogue": "Undead Rogue most frequently died at Level 13 in Tirisfal Glades. The Model predicts that Undead Rogue's will die at Level 6 (9.50%) in Hillsbrad Foothills (67.90%)",
+                "Undead Priest": "Undead Priest most frequently died at Level 12 in Tirisfal Glades. The Model predicts that Undead Priest's will die at Level 6 (10.40%) in The Hinterlands (61.10%)",
+                "Undead Mage": "Undead Mage most frequently died at Level 13 in The Barrens. The Model predicts that Undead Mage's will die at Level 6 (12.60%) in Badlands (57.20%)",
+                "Undead Warlock": "Undead Warlock most frequently died at Level 13 in Tirisfal Glades. The Model predicts that Undead Warlock's will die at Level 6 (12.90%) in Badlands (67.00%)",
+                "Tauren Warrior": "Tauren Warrior most frequently died at Level 6 in Mulgore. The Model predicts that Tauren Warrior's will die at Level 6 (13.20%) in Eastern Kingdoms (74.70%)",
+                "Tauren Hunter": "Tauren Hunter most frequently died at Level 6 in Mulgore. The Model predicts that Tauren Hunter's will die at Level 6 (14.00%) in Arathi Highlands (72.50%)",
+                "Tauren Shaman": "Tauren Shaman most frequently died at Level 13 in The Barrens. The Model predicts that Tauren Shaman's will die at Level 6 (8.40%) in Badlands (68.90%)",
+                "Tauren Druid": "Tauren Druid most frequently died at Level 13 in The Barrens. The Model predicts that Tauren Druid's will die at Level 6 (10.10%) in Arathi Highlands (73.00%)",
+                "Gnome Warrior": "Gnome Warrior most frequently died at Level 6 in Dun Morogh. The Model predicts that Gnome Warrior's will die at Level 6 (11.60%) in Western Plaguelands (65.50%)",
+                "Gnome Rogue": "Gnome Rogue most frequently died at Level 6 in Dun Morogh. The Model predicts that Gnome Rogue's will die at Level 6 (13.00%) in Tirisfal Glades (66.40%)",
+                "Gnome Mage": "Gnome Mage most frequently died at Level 6 in Dun Morogh. The Model predicts that Gnome Mage's will die at Level 6 (6.90%) in Western Plaguelands (59.80%)",
+                "Gnome Warlock": "Gnome Warlock most frequently died at Level 6 in Dun Morogh. The Model predicts that Gnome Warlock's will die at Level 6 (12.70%) in Eastern Plaguelands (67.70%)",
+                "Troll Warrior": "Troll Warrior most frequently died at Level 10 in Durotar. The Model predicts that Troll Warrior's will die at Level 6 (10.50%) in Eastern Kingdoms (59.70%)",
+                "Troll Hunter": "Troll Hunter most frequently died at Level 11 in Durotar. The Model predicts that Troll Hunter's will die at Level 6 (10.20%) in Eastern Kingdoms (75.10%)",
+                "Troll Rogue": "Troll Rogue most frequently died at Level 10 in Durotar. The Model predicts that Troll Rogue's will die at Level 6 (13.40%) in Kalimdor (74.20%)",
+                "Troll Priest": "Troll Priest most frequently died at Level 10 in Durotar. The Model predicts that Troll Priest's will die at Level 6 (15.40%) in The Barrens (71.60%)",
+                "Troll Shaman": "Troll Shaman most frequently died at Level 10 in Durotar. The Model predicts that Troll Shaman's will die at Level 6 (11.80%) in Eastern Kingdoms (70.10%)",
+                "Troll Mage": "Troll Mage most frequently died at Level 10 in Durotar. The Model predicts that Troll Mage's will die at Level 6 (12.70%) in Arathi Highlands (70.30%)"
+            };
+
+            const factionSelect = document.getElementById('faction');
+            const raceSelect = document.getElementById('race');
+            const classSelect = document.getElementById('class');
+            const randomizeButton = document.getElementById('randomize');
+            const resetButton = document.getElementById('reset');
+            const defaultInfo = document.getElementById('default-info');
+            const selectedInfo = document.getElementById('selected-info');
+
+            function populateDropdown(dropdown, options) {
+                dropdown.innerHTML = '<option value="">Select</option>';
+                options.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    dropdown.appendChild(opt);
+                });
+                dropdown.disabled = false;
+            }
+
+            function randomSelect(dropdown) {
+                const options = dropdown.querySelectorAll('option');
+                const randomIndex = Math.floor(Math.random() * (options.length - 1)) + 1;
+                dropdown.selectedIndex = randomIndex;
+            }
+
+            function updateInfo() {
+                const race = raceSelect.value;
+                const characterClass = classSelect.value;
+                const key = `${race} ${characterClass}`;
+                if (deathMessages[key]) {
+                    selectedInfo.textContent = deathMessages[key];
+                    selectedInfo.style.display = 'block';
+                    defaultInfo.style.display = 'none';
+                } else {
+                    selectedInfo.style.display = 'none';
+                    defaultInfo.style.display = 'block';
+                }
+            }
+
+            factionSelect.addEventListener('change', () => {
+                raceSelect.innerHTML = '<option value="">Select Race</option>';
+                classSelect.innerHTML = '<option value="">Select Class</option>';
+                if (factionSelect.value) {
+                    populateDropdown(raceSelect, factions[factionSelect.value]);
+                    raceSelect.disabled = false;
+                } else {
+                    raceSelect.disabled = true;
+                    classSelect.disabled = true;
+                }
+                updateInfo();
+            });
+
+            raceSelect.addEventListener('change', () => {
+                classSelect.innerHTML = '<option value="">Select Class</option>';
+                if (raceSelect.value) {
+                    populateDropdown(classSelect, races[raceSelect.value]);
+                    classSelect.disabled = false;
+                } else {
+                    classSelect.disabled = true;
+                }
+                updateInfo();
+            });
+
+            classSelect.addEventListener('change', () => {
+                updateInfo();
+            });
+
+            randomizeButton.addEventListener('click', () => {
+                randomSelect(factionSelect);
+                const selectedFaction = factionSelect.value;
+                populateDropdown(raceSelect, factions[selectedFaction]);
+                randomSelect(raceSelect);
+                const selectedRace = raceSelect.value;
+                populateDropdown(classSelect, races[selectedRace]);
+                randomSelect(classSelect);
+                updateInfo();
+            });
+
+            resetButton.addEventListener('click', () => {
+                factionSelect.selectedIndex = 0;
+                raceSelect.innerHTML = '<option value="">Select Race</option>';
+                classSelect.innerHTML = '<option value="">Select Class</option>';
+                raceSelect.disabled = true;
+                classSelect.disabled = true;
+                defaultInfo.style.display = 'block';
+                selectedInfo.style.display = 'none';
+            });
+
+            raceSelect.disabled = true;
+            classSelect.disabled = true;
+        });
+    </script>
+</head>
+<body>
+    <button id="randomize">Randomize</button>
+    <button id="reset">Reset</button>
+
+    <label for="faction">Faction:</label>
+    <select id="faction">
+        <option value="">Select Faction</option>
+        <option value="Alliance">Alliance</option>
+        <option value="Horde">Horde</option>
+    </select>
+
+    <label for="race">Race:</label>
+    <select id="race" disabled>
+        <option value="">Select Race</option>
+    </select>
+
+    <label for="class">Class:</label>
+    <select id="class" disabled>
+        <option value="">Select Class</option>
+    </select>
+
+    <div id="default-info">
+        <p>Overall most frequently died at Level 6 in Westfall. The Model predict that Overall will die at Level 6 (0.00%) in Elwynn Forest (50.70%)</p>
+        <p>Alliance most frequently died at Level 8 in Westfall. The Model predict that Alliance will die at Level 6 (0.00%) in Stranglethorn Vale (59.70%)</p>
+        <p>Horde most frequently died at Level 13 in The Barrens. The Model predict that Horde will die at Level 13 (0.00%) in Eastern Kingdoms (65.80%)</p>
+    </div>
+    <div id="selected-info"></div>
+</body>
+</html>
